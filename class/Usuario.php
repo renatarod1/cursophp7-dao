@@ -45,11 +45,7 @@ class Usuario {
 		$results = $sql->select("SELECT * FROM tb_usuarios WHERE idusuario = :ID", array(":ID"=>$id));
 
 		if (isset($results[0])) {
-			$row = $results[0];
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new Datetime($row['dtcadastro']));
+			$this->setData($results[0]);
 		}
 	}
 
@@ -75,18 +71,59 @@ class Usuario {
 			":LOGIN"=>$login,
 			":PASSWORD"=>$password));
 
-		if (count($results) > 0) {
+		if (count($results) > 0) {	
 
-			$row = $results[0];
-			
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new Datetime($row['dtcadastro']));
+			$this->setData($results[0]);
+
 		} else {
 			throw new Exception("Login e/ou senha Inválidos", 1);
 		}
 	}
+
+	public function setData($data){
+		$this->setIdusuario($data['idusuario']);
+		$this->setDeslogin($data['deslogin']);
+		$this->setDessenha($data['dessenha']);
+		$this->setDtcadastro(new Datetime($data['dtcadastro']));
+	}
+
+
+
+	//Método que faz um INSERT de novo usuário no banco
+	public function insert(){
+		$sql = new Sql();
+		//Criamos uma procedure no mysql dentro do SELECT
+		//Quando a procedure executar retorna o ID do registro criado na tabela
+		$results = $sql->select("CALL sp_usuarios_insert(:LOGIN, :PASSWORD)", array(
+				':LOGIN'=>$this->getDeslogin(),
+				':PASSWORD'=>$this->getDessenha()
+			));
+
+		if (count($results) > 0) {	
+			$this->setData($results[0]);
+		} 
+	}
+
+	//Método que faz um UPDATE de um usuário
+	public function update($login, $password){
+		$this->setDeslogin($login);
+		$this->setDessenha($password);
+
+		$sql = new Sql();
+		$sql->query("UPDATE tb_usuarios SET deslogin = :LOGIN, dessenha = :PASSWORD WHERE idusuario = :ID", array(
+				':LOGIN'=>$this->getDeslogin(),
+				':PASSWORD'=>$this->getDessenha(),
+				':ID'=>$this->getIdusuario()
+			));
+	}
+
+	//Método Construtor - Para que a passagem de parâmetros não seja obrigatória use = "" do lado
+	public function __construct($login = "", $password = ""){
+		$this->setDeslogin($login);
+		$this->setDessenha($password);
+	}
+
+
 
 
 	//Método que transforma o objeto Usuário em String para exibição
