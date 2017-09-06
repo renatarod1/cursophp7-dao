@@ -53,12 +53,21 @@ $aluno->setDessenha("@lun0");*/
 //-------------------------------------------------
 //Faz o update de um usuário
 //-------------------------------------------------
-$usuario = new Usuario();
+/*$usuario = new Usuario();
 
 $usuario->loadById(6);
 
 $usuario->update("professor", "!@#$%¨&*");
 
+echo $usuario;*/
+
+//-------------------------------------------------
+//Faz o delete de um usuário
+//-------------------------------------------------
+$usuario = new Usuario();
+$usuario->loadById(5);
+$usuario->delete();
 echo $usuario;
+
 
 ?>
